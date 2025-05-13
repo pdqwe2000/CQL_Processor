@@ -18,10 +18,10 @@ Rule 12    statement -> procedure_call
 Rule 13    import_stmt -> IMPORT TABLE IDENTIFIER FROM STRING
 Rule 14    export_stmt -> EXPORT TABLE IDENTIFIER AS STRING
 Rule 15    discard_stmt -> DISCARD TABLE IDENTIFIER
-Rule 16    rename_stmt -> RENAME TABLE IDENTIFIER TO IDENTIFIER
+Rule 16    rename_stmt -> RENAME TABLE IDENTIFIER IDENTIFIER
 Rule 17    print_stmt -> PRINT TABLE IDENTIFIER
 Rule 18    select_stmt -> SELECT select_fields FROM IDENTIFIER where_clause limit_clause
-Rule 19    select_fields -> *
+Rule 19    select_fields -> STAR
 Rule 20    select_fields -> field_list
 Rule 21    field_list -> IDENTIFIER
 Rule 22    field_list -> field_list COMMA IDENTIFIER
@@ -47,7 +47,6 @@ Rule 41    empty -> <empty>
 
 Terminals, with rules where they appear
 
-*                    : 19
 AND                  : 26
 AS                   : 14
 CALL                 : 40
@@ -76,6 +75,7 @@ RENAME               : 16
 RPAREN               : 38
 SELECT               : 18
 SEMICOLON            : 1 2
+STAR                 : 19
 STRING               : 13 14 33
 TABLE                : 13 14 15 16 17 37 38
 USING                : 38
@@ -84,7 +84,6 @@ error                :
 
 Nonterminals, with rules where they appear
 
-TO                   : 16
 condition            : 25 26
 condition_list       : 23 26
 create_join_stmt     : 10
@@ -105,4 +104,909 @@ select_stmt          : 8 37
 statement            : 1 2
 value                : 31 32
 where_clause         : 18
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . statement SEMICOLON
+    (2) program -> . program statement SEMICOLON
+    (3) statement -> . import_stmt
+    (4) statement -> . export_stmt
+    (5) statement -> . discard_stmt
+    (6) statement -> . rename_stmt
+    (7) statement -> . print_stmt
+    (8) statement -> . select_stmt
+    (9) statement -> . create_select_stmt
+    (10) statement -> . create_join_stmt
+    (11) statement -> . procedure_decl
+    (12) statement -> . procedure_call
+    (13) import_stmt -> . IMPORT TABLE IDENTIFIER FROM STRING
+    (14) export_stmt -> . EXPORT TABLE IDENTIFIER AS STRING
+    (15) discard_stmt -> . DISCARD TABLE IDENTIFIER
+    (16) rename_stmt -> . RENAME TABLE IDENTIFIER IDENTIFIER
+    (17) print_stmt -> . PRINT TABLE IDENTIFIER
+    (18) select_stmt -> . SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+    (37) create_select_stmt -> . CREATE TABLE IDENTIFIER select_stmt
+    (38) create_join_stmt -> . CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+    (39) procedure_decl -> . PROCEDURE IDENTIFIER DO program END
+    (40) procedure_call -> . CALL IDENTIFIER
+
+    IMPORT          shift and go to state 13
+    EXPORT          shift and go to state 14
+    DISCARD         shift and go to state 15
+    RENAME          shift and go to state 16
+    PRINT           shift and go to state 17
+    SELECT          shift and go to state 18
+    CREATE          shift and go to state 19
+    PROCEDURE       shift and go to state 20
+    CALL            shift and go to state 21
+
+    program                        shift and go to state 1
+    statement                      shift and go to state 2
+    import_stmt                    shift and go to state 3
+    export_stmt                    shift and go to state 4
+    discard_stmt                   shift and go to state 5
+    rename_stmt                    shift and go to state 6
+    print_stmt                     shift and go to state 7
+    select_stmt                    shift and go to state 8
+    create_select_stmt             shift and go to state 9
+    create_join_stmt               shift and go to state 10
+    procedure_decl                 shift and go to state 11
+    procedure_call                 shift and go to state 12
+
+state 1
+
+    (0) S' -> program .
+    (2) program -> program . statement SEMICOLON
+    (3) statement -> . import_stmt
+    (4) statement -> . export_stmt
+    (5) statement -> . discard_stmt
+    (6) statement -> . rename_stmt
+    (7) statement -> . print_stmt
+    (8) statement -> . select_stmt
+    (9) statement -> . create_select_stmt
+    (10) statement -> . create_join_stmt
+    (11) statement -> . procedure_decl
+    (12) statement -> . procedure_call
+    (13) import_stmt -> . IMPORT TABLE IDENTIFIER FROM STRING
+    (14) export_stmt -> . EXPORT TABLE IDENTIFIER AS STRING
+    (15) discard_stmt -> . DISCARD TABLE IDENTIFIER
+    (16) rename_stmt -> . RENAME TABLE IDENTIFIER IDENTIFIER
+    (17) print_stmt -> . PRINT TABLE IDENTIFIER
+    (18) select_stmt -> . SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+    (37) create_select_stmt -> . CREATE TABLE IDENTIFIER select_stmt
+    (38) create_join_stmt -> . CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+    (39) procedure_decl -> . PROCEDURE IDENTIFIER DO program END
+    (40) procedure_call -> . CALL IDENTIFIER
+
+    IMPORT          shift and go to state 13
+    EXPORT          shift and go to state 14
+    DISCARD         shift and go to state 15
+    RENAME          shift and go to state 16
+    PRINT           shift and go to state 17
+    SELECT          shift and go to state 18
+    CREATE          shift and go to state 19
+    PROCEDURE       shift and go to state 20
+    CALL            shift and go to state 21
+
+    statement                      shift and go to state 22
+    import_stmt                    shift and go to state 3
+    export_stmt                    shift and go to state 4
+    discard_stmt                   shift and go to state 5
+    rename_stmt                    shift and go to state 6
+    print_stmt                     shift and go to state 7
+    select_stmt                    shift and go to state 8
+    create_select_stmt             shift and go to state 9
+    create_join_stmt               shift and go to state 10
+    procedure_decl                 shift and go to state 11
+    procedure_call                 shift and go to state 12
+
+state 2
+
+    (1) program -> statement . SEMICOLON
+
+    SEMICOLON       shift and go to state 23
+
+
+state 3
+
+    (3) statement -> import_stmt .
+
+    SEMICOLON       reduce using rule 3 (statement -> import_stmt .)
+
+
+state 4
+
+    (4) statement -> export_stmt .
+
+    SEMICOLON       reduce using rule 4 (statement -> export_stmt .)
+
+
+state 5
+
+    (5) statement -> discard_stmt .
+
+    SEMICOLON       reduce using rule 5 (statement -> discard_stmt .)
+
+
+state 6
+
+    (6) statement -> rename_stmt .
+
+    SEMICOLON       reduce using rule 6 (statement -> rename_stmt .)
+
+
+state 7
+
+    (7) statement -> print_stmt .
+
+    SEMICOLON       reduce using rule 7 (statement -> print_stmt .)
+
+
+state 8
+
+    (8) statement -> select_stmt .
+
+    SEMICOLON       reduce using rule 8 (statement -> select_stmt .)
+
+
+state 9
+
+    (9) statement -> create_select_stmt .
+
+    SEMICOLON       reduce using rule 9 (statement -> create_select_stmt .)
+
+
+state 10
+
+    (10) statement -> create_join_stmt .
+
+    SEMICOLON       reduce using rule 10 (statement -> create_join_stmt .)
+
+
+state 11
+
+    (11) statement -> procedure_decl .
+
+    SEMICOLON       reduce using rule 11 (statement -> procedure_decl .)
+
+
+state 12
+
+    (12) statement -> procedure_call .
+
+    SEMICOLON       reduce using rule 12 (statement -> procedure_call .)
+
+
+state 13
+
+    (13) import_stmt -> IMPORT . TABLE IDENTIFIER FROM STRING
+
+    TABLE           shift and go to state 24
+
+
+state 14
+
+    (14) export_stmt -> EXPORT . TABLE IDENTIFIER AS STRING
+
+    TABLE           shift and go to state 25
+
+
+state 15
+
+    (15) discard_stmt -> DISCARD . TABLE IDENTIFIER
+
+    TABLE           shift and go to state 26
+
+
+state 16
+
+    (16) rename_stmt -> RENAME . TABLE IDENTIFIER IDENTIFIER
+
+    TABLE           shift and go to state 27
+
+
+state 17
+
+    (17) print_stmt -> PRINT . TABLE IDENTIFIER
+
+    TABLE           shift and go to state 28
+
+
+state 18
+
+    (18) select_stmt -> SELECT . select_fields FROM IDENTIFIER where_clause limit_clause
+    (19) select_fields -> . STAR
+    (20) select_fields -> . field_list
+    (21) field_list -> . IDENTIFIER
+    (22) field_list -> . field_list COMMA IDENTIFIER
+
+    STAR            shift and go to state 31
+    IDENTIFIER      shift and go to state 30
+
+    select_fields                  shift and go to state 29
+    field_list                     shift and go to state 32
+
+state 19
+
+    (37) create_select_stmt -> CREATE . TABLE IDENTIFIER select_stmt
+    (38) create_join_stmt -> CREATE . TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+
+    TABLE           shift and go to state 33
+
+
+state 20
+
+    (39) procedure_decl -> PROCEDURE . IDENTIFIER DO program END
+
+    IDENTIFIER      shift and go to state 34
+
+
+state 21
+
+    (40) procedure_call -> CALL . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 35
+
+
+state 22
+
+    (2) program -> program statement . SEMICOLON
+
+    SEMICOLON       shift and go to state 36
+
+
+state 23
+
+    (1) program -> statement SEMICOLON .
+
+    IMPORT          reduce using rule 1 (program -> statement SEMICOLON .)
+    EXPORT          reduce using rule 1 (program -> statement SEMICOLON .)
+    DISCARD         reduce using rule 1 (program -> statement SEMICOLON .)
+    RENAME          reduce using rule 1 (program -> statement SEMICOLON .)
+    PRINT           reduce using rule 1 (program -> statement SEMICOLON .)
+    SELECT          reduce using rule 1 (program -> statement SEMICOLON .)
+    CREATE          reduce using rule 1 (program -> statement SEMICOLON .)
+    PROCEDURE       reduce using rule 1 (program -> statement SEMICOLON .)
+    CALL            reduce using rule 1 (program -> statement SEMICOLON .)
+    $end            reduce using rule 1 (program -> statement SEMICOLON .)
+    END             reduce using rule 1 (program -> statement SEMICOLON .)
+
+
+state 24
+
+    (13) import_stmt -> IMPORT TABLE . IDENTIFIER FROM STRING
+
+    IDENTIFIER      shift and go to state 37
+
+
+state 25
+
+    (14) export_stmt -> EXPORT TABLE . IDENTIFIER AS STRING
+
+    IDENTIFIER      shift and go to state 38
+
+
+state 26
+
+    (15) discard_stmt -> DISCARD TABLE . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 39
+
+
+state 27
+
+    (16) rename_stmt -> RENAME TABLE . IDENTIFIER IDENTIFIER
+
+    IDENTIFIER      shift and go to state 40
+
+
+state 28
+
+    (17) print_stmt -> PRINT TABLE . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 41
+
+
+state 29
+
+    (18) select_stmt -> SELECT select_fields . FROM IDENTIFIER where_clause limit_clause
+
+    FROM            shift and go to state 42
+
+
+state 30
+
+    (21) field_list -> IDENTIFIER .
+
+    COMMA           reduce using rule 21 (field_list -> IDENTIFIER .)
+    FROM            reduce using rule 21 (field_list -> IDENTIFIER .)
+
+
+state 31
+
+    (19) select_fields -> STAR .
+
+    FROM            reduce using rule 19 (select_fields -> STAR .)
+
+
+state 32
+
+    (20) select_fields -> field_list .
+    (22) field_list -> field_list . COMMA IDENTIFIER
+
+    FROM            reduce using rule 20 (select_fields -> field_list .)
+    COMMA           shift and go to state 43
+
+
+state 33
+
+    (37) create_select_stmt -> CREATE TABLE . IDENTIFIER select_stmt
+    (38) create_join_stmt -> CREATE TABLE . IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 44
+
+
+state 34
+
+    (39) procedure_decl -> PROCEDURE IDENTIFIER . DO program END
+
+    DO              shift and go to state 45
+
+
+state 35
+
+    (40) procedure_call -> CALL IDENTIFIER .
+
+    SEMICOLON       reduce using rule 40 (procedure_call -> CALL IDENTIFIER .)
+
+
+state 36
+
+    (2) program -> program statement SEMICOLON .
+
+    IMPORT          reduce using rule 2 (program -> program statement SEMICOLON .)
+    EXPORT          reduce using rule 2 (program -> program statement SEMICOLON .)
+    DISCARD         reduce using rule 2 (program -> program statement SEMICOLON .)
+    RENAME          reduce using rule 2 (program -> program statement SEMICOLON .)
+    PRINT           reduce using rule 2 (program -> program statement SEMICOLON .)
+    SELECT          reduce using rule 2 (program -> program statement SEMICOLON .)
+    CREATE          reduce using rule 2 (program -> program statement SEMICOLON .)
+    PROCEDURE       reduce using rule 2 (program -> program statement SEMICOLON .)
+    CALL            reduce using rule 2 (program -> program statement SEMICOLON .)
+    $end            reduce using rule 2 (program -> program statement SEMICOLON .)
+    END             reduce using rule 2 (program -> program statement SEMICOLON .)
+
+
+state 37
+
+    (13) import_stmt -> IMPORT TABLE IDENTIFIER . FROM STRING
+
+    FROM            shift and go to state 46
+
+
+state 38
+
+    (14) export_stmt -> EXPORT TABLE IDENTIFIER . AS STRING
+
+    AS              shift and go to state 47
+
+
+state 39
+
+    (15) discard_stmt -> DISCARD TABLE IDENTIFIER .
+
+    SEMICOLON       reduce using rule 15 (discard_stmt -> DISCARD TABLE IDENTIFIER .)
+
+
+state 40
+
+    (16) rename_stmt -> RENAME TABLE IDENTIFIER . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 48
+
+
+state 41
+
+    (17) print_stmt -> PRINT TABLE IDENTIFIER .
+
+    SEMICOLON       reduce using rule 17 (print_stmt -> PRINT TABLE IDENTIFIER .)
+
+
+state 42
+
+    (18) select_stmt -> SELECT select_fields FROM . IDENTIFIER where_clause limit_clause
+
+    IDENTIFIER      shift and go to state 49
+
+
+state 43
+
+    (22) field_list -> field_list COMMA . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 50
+
+
+state 44
+
+    (37) create_select_stmt -> CREATE TABLE IDENTIFIER . select_stmt
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER . FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+    (18) select_stmt -> . SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+
+    FROM            shift and go to state 52
+    SELECT          shift and go to state 18
+
+    select_stmt                    shift and go to state 51
+
+state 45
+
+    (39) procedure_decl -> PROCEDURE IDENTIFIER DO . program END
+    (1) program -> . statement SEMICOLON
+    (2) program -> . program statement SEMICOLON
+    (3) statement -> . import_stmt
+    (4) statement -> . export_stmt
+    (5) statement -> . discard_stmt
+    (6) statement -> . rename_stmt
+    (7) statement -> . print_stmt
+    (8) statement -> . select_stmt
+    (9) statement -> . create_select_stmt
+    (10) statement -> . create_join_stmt
+    (11) statement -> . procedure_decl
+    (12) statement -> . procedure_call
+    (13) import_stmt -> . IMPORT TABLE IDENTIFIER FROM STRING
+    (14) export_stmt -> . EXPORT TABLE IDENTIFIER AS STRING
+    (15) discard_stmt -> . DISCARD TABLE IDENTIFIER
+    (16) rename_stmt -> . RENAME TABLE IDENTIFIER IDENTIFIER
+    (17) print_stmt -> . PRINT TABLE IDENTIFIER
+    (18) select_stmt -> . SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+    (37) create_select_stmt -> . CREATE TABLE IDENTIFIER select_stmt
+    (38) create_join_stmt -> . CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+    (39) procedure_decl -> . PROCEDURE IDENTIFIER DO program END
+    (40) procedure_call -> . CALL IDENTIFIER
+
+    IMPORT          shift and go to state 13
+    EXPORT          shift and go to state 14
+    DISCARD         shift and go to state 15
+    RENAME          shift and go to state 16
+    PRINT           shift and go to state 17
+    SELECT          shift and go to state 18
+    CREATE          shift and go to state 19
+    PROCEDURE       shift and go to state 20
+    CALL            shift and go to state 21
+
+    program                        shift and go to state 53
+    statement                      shift and go to state 2
+    import_stmt                    shift and go to state 3
+    export_stmt                    shift and go to state 4
+    discard_stmt                   shift and go to state 5
+    rename_stmt                    shift and go to state 6
+    print_stmt                     shift and go to state 7
+    select_stmt                    shift and go to state 8
+    create_select_stmt             shift and go to state 9
+    create_join_stmt               shift and go to state 10
+    procedure_decl                 shift and go to state 11
+    procedure_call                 shift and go to state 12
+
+state 46
+
+    (13) import_stmt -> IMPORT TABLE IDENTIFIER FROM . STRING
+
+    STRING          shift and go to state 54
+
+
+state 47
+
+    (14) export_stmt -> EXPORT TABLE IDENTIFIER AS . STRING
+
+    STRING          shift and go to state 55
+
+
+state 48
+
+    (16) rename_stmt -> RENAME TABLE IDENTIFIER IDENTIFIER .
+
+    SEMICOLON       reduce using rule 16 (rename_stmt -> RENAME TABLE IDENTIFIER IDENTIFIER .)
+
+
+state 49
+
+    (18) select_stmt -> SELECT select_fields FROM IDENTIFIER . where_clause limit_clause
+    (23) where_clause -> . WHERE condition_list
+    (24) where_clause -> . empty
+    (41) empty -> .
+
+    WHERE           shift and go to state 57
+    LIMIT           reduce using rule 41 (empty -> .)
+    SEMICOLON       reduce using rule 41 (empty -> .)
+
+    where_clause                   shift and go to state 56
+    empty                          shift and go to state 58
+
+state 50
+
+    (22) field_list -> field_list COMMA IDENTIFIER .
+
+    COMMA           reduce using rule 22 (field_list -> field_list COMMA IDENTIFIER .)
+    FROM            reduce using rule 22 (field_list -> field_list COMMA IDENTIFIER .)
+
+
+state 51
+
+    (37) create_select_stmt -> CREATE TABLE IDENTIFIER select_stmt .
+
+    SEMICOLON       reduce using rule 37 (create_select_stmt -> CREATE TABLE IDENTIFIER select_stmt .)
+
+
+state 52
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM . IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 59
+
+
+state 53
+
+    (39) procedure_decl -> PROCEDURE IDENTIFIER DO program . END
+    (2) program -> program . statement SEMICOLON
+    (3) statement -> . import_stmt
+    (4) statement -> . export_stmt
+    (5) statement -> . discard_stmt
+    (6) statement -> . rename_stmt
+    (7) statement -> . print_stmt
+    (8) statement -> . select_stmt
+    (9) statement -> . create_select_stmt
+    (10) statement -> . create_join_stmt
+    (11) statement -> . procedure_decl
+    (12) statement -> . procedure_call
+    (13) import_stmt -> . IMPORT TABLE IDENTIFIER FROM STRING
+    (14) export_stmt -> . EXPORT TABLE IDENTIFIER AS STRING
+    (15) discard_stmt -> . DISCARD TABLE IDENTIFIER
+    (16) rename_stmt -> . RENAME TABLE IDENTIFIER IDENTIFIER
+    (17) print_stmt -> . PRINT TABLE IDENTIFIER
+    (18) select_stmt -> . SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+    (37) create_select_stmt -> . CREATE TABLE IDENTIFIER select_stmt
+    (38) create_join_stmt -> . CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+    (39) procedure_decl -> . PROCEDURE IDENTIFIER DO program END
+    (40) procedure_call -> . CALL IDENTIFIER
+
+    END             shift and go to state 60
+    IMPORT          shift and go to state 13
+    EXPORT          shift and go to state 14
+    DISCARD         shift and go to state 15
+    RENAME          shift and go to state 16
+    PRINT           shift and go to state 17
+    SELECT          shift and go to state 18
+    CREATE          shift and go to state 19
+    PROCEDURE       shift and go to state 20
+    CALL            shift and go to state 21
+
+    statement                      shift and go to state 22
+    import_stmt                    shift and go to state 3
+    export_stmt                    shift and go to state 4
+    discard_stmt                   shift and go to state 5
+    rename_stmt                    shift and go to state 6
+    print_stmt                     shift and go to state 7
+    select_stmt                    shift and go to state 8
+    create_select_stmt             shift and go to state 9
+    create_join_stmt               shift and go to state 10
+    procedure_decl                 shift and go to state 11
+    procedure_call                 shift and go to state 12
+
+state 54
+
+    (13) import_stmt -> IMPORT TABLE IDENTIFIER FROM STRING .
+
+    SEMICOLON       reduce using rule 13 (import_stmt -> IMPORT TABLE IDENTIFIER FROM STRING .)
+
+
+state 55
+
+    (14) export_stmt -> EXPORT TABLE IDENTIFIER AS STRING .
+
+    SEMICOLON       reduce using rule 14 (export_stmt -> EXPORT TABLE IDENTIFIER AS STRING .)
+
+
+state 56
+
+    (18) select_stmt -> SELECT select_fields FROM IDENTIFIER where_clause . limit_clause
+    (35) limit_clause -> . LIMIT NUMBER
+    (36) limit_clause -> . empty
+    (41) empty -> .
+
+    LIMIT           shift and go to state 62
+    SEMICOLON       reduce using rule 41 (empty -> .)
+
+    limit_clause                   shift and go to state 61
+    empty                          shift and go to state 63
+
+state 57
+
+    (23) where_clause -> WHERE . condition_list
+    (25) condition_list -> . condition
+    (26) condition_list -> . condition_list AND condition
+    (27) condition -> . IDENTIFIER GREATER NUMBER
+    (28) condition -> . IDENTIFIER LESS NUMBER
+    (29) condition -> . IDENTIFIER GREATER_EQ NUMBER
+    (30) condition -> . IDENTIFIER LESS_EQ NUMBER
+    (31) condition -> . IDENTIFIER EQUALS value
+    (32) condition -> . IDENTIFIER NOT_EQUALS value
+
+    IDENTIFIER      shift and go to state 66
+
+    condition_list                 shift and go to state 64
+    condition                      shift and go to state 65
+
+state 58
+
+    (24) where_clause -> empty .
+
+    LIMIT           reduce using rule 24 (where_clause -> empty .)
+    SEMICOLON       reduce using rule 24 (where_clause -> empty .)
+
+
+state 59
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER . JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+
+    JOIN            shift and go to state 67
+
+
+state 60
+
+    (39) procedure_decl -> PROCEDURE IDENTIFIER DO program END .
+
+    SEMICOLON       reduce using rule 39 (procedure_decl -> PROCEDURE IDENTIFIER DO program END .)
+
+
+state 61
+
+    (18) select_stmt -> SELECT select_fields FROM IDENTIFIER where_clause limit_clause .
+
+    SEMICOLON       reduce using rule 18 (select_stmt -> SELECT select_fields FROM IDENTIFIER where_clause limit_clause .)
+
+
+state 62
+
+    (35) limit_clause -> LIMIT . NUMBER
+
+    NUMBER          shift and go to state 68
+
+
+state 63
+
+    (36) limit_clause -> empty .
+
+    SEMICOLON       reduce using rule 36 (limit_clause -> empty .)
+
+
+state 64
+
+    (23) where_clause -> WHERE condition_list .
+    (26) condition_list -> condition_list . AND condition
+
+    LIMIT           reduce using rule 23 (where_clause -> WHERE condition_list .)
+    SEMICOLON       reduce using rule 23 (where_clause -> WHERE condition_list .)
+    AND             shift and go to state 69
+
+
+state 65
+
+    (25) condition_list -> condition .
+
+    AND             reduce using rule 25 (condition_list -> condition .)
+    LIMIT           reduce using rule 25 (condition_list -> condition .)
+    SEMICOLON       reduce using rule 25 (condition_list -> condition .)
+
+
+state 66
+
+    (27) condition -> IDENTIFIER . GREATER NUMBER
+    (28) condition -> IDENTIFIER . LESS NUMBER
+    (29) condition -> IDENTIFIER . GREATER_EQ NUMBER
+    (30) condition -> IDENTIFIER . LESS_EQ NUMBER
+    (31) condition -> IDENTIFIER . EQUALS value
+    (32) condition -> IDENTIFIER . NOT_EQUALS value
+
+    GREATER         shift and go to state 70
+    LESS            shift and go to state 71
+    GREATER_EQ      shift and go to state 72
+    LESS_EQ         shift and go to state 73
+    EQUALS          shift and go to state 74
+    NOT_EQUALS      shift and go to state 75
+
+
+state 67
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN . IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 76
+
+
+state 68
+
+    (35) limit_clause -> LIMIT NUMBER .
+
+    SEMICOLON       reduce using rule 35 (limit_clause -> LIMIT NUMBER .)
+
+
+state 69
+
+    (26) condition_list -> condition_list AND . condition
+    (27) condition -> . IDENTIFIER GREATER NUMBER
+    (28) condition -> . IDENTIFIER LESS NUMBER
+    (29) condition -> . IDENTIFIER GREATER_EQ NUMBER
+    (30) condition -> . IDENTIFIER LESS_EQ NUMBER
+    (31) condition -> . IDENTIFIER EQUALS value
+    (32) condition -> . IDENTIFIER NOT_EQUALS value
+
+    IDENTIFIER      shift and go to state 66
+
+    condition                      shift and go to state 77
+
+state 70
+
+    (27) condition -> IDENTIFIER GREATER . NUMBER
+
+    NUMBER          shift and go to state 78
+
+
+state 71
+
+    (28) condition -> IDENTIFIER LESS . NUMBER
+
+    NUMBER          shift and go to state 79
+
+
+state 72
+
+    (29) condition -> IDENTIFIER GREATER_EQ . NUMBER
+
+    NUMBER          shift and go to state 80
+
+
+state 73
+
+    (30) condition -> IDENTIFIER LESS_EQ . NUMBER
+
+    NUMBER          shift and go to state 81
+
+
+state 74
+
+    (31) condition -> IDENTIFIER EQUALS . value
+    (33) value -> . STRING
+    (34) value -> . NUMBER
+
+    STRING          shift and go to state 83
+    NUMBER          shift and go to state 84
+
+    value                          shift and go to state 82
+
+state 75
+
+    (32) condition -> IDENTIFIER NOT_EQUALS . value
+    (33) value -> . STRING
+    (34) value -> . NUMBER
+
+    STRING          shift and go to state 83
+    NUMBER          shift and go to state 84
+
+    value                          shift and go to state 85
+
+state 76
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER . USING LPAREN IDENTIFIER RPAREN
+
+    USING           shift and go to state 86
+
+
+state 77
+
+    (26) condition_list -> condition_list AND condition .
+
+    AND             reduce using rule 26 (condition_list -> condition_list AND condition .)
+    LIMIT           reduce using rule 26 (condition_list -> condition_list AND condition .)
+    SEMICOLON       reduce using rule 26 (condition_list -> condition_list AND condition .)
+
+
+state 78
+
+    (27) condition -> IDENTIFIER GREATER NUMBER .
+
+    AND             reduce using rule 27 (condition -> IDENTIFIER GREATER NUMBER .)
+    LIMIT           reduce using rule 27 (condition -> IDENTIFIER GREATER NUMBER .)
+    SEMICOLON       reduce using rule 27 (condition -> IDENTIFIER GREATER NUMBER .)
+
+
+state 79
+
+    (28) condition -> IDENTIFIER LESS NUMBER .
+
+    AND             reduce using rule 28 (condition -> IDENTIFIER LESS NUMBER .)
+    LIMIT           reduce using rule 28 (condition -> IDENTIFIER LESS NUMBER .)
+    SEMICOLON       reduce using rule 28 (condition -> IDENTIFIER LESS NUMBER .)
+
+
+state 80
+
+    (29) condition -> IDENTIFIER GREATER_EQ NUMBER .
+
+    AND             reduce using rule 29 (condition -> IDENTIFIER GREATER_EQ NUMBER .)
+    LIMIT           reduce using rule 29 (condition -> IDENTIFIER GREATER_EQ NUMBER .)
+    SEMICOLON       reduce using rule 29 (condition -> IDENTIFIER GREATER_EQ NUMBER .)
+
+
+state 81
+
+    (30) condition -> IDENTIFIER LESS_EQ NUMBER .
+
+    AND             reduce using rule 30 (condition -> IDENTIFIER LESS_EQ NUMBER .)
+    LIMIT           reduce using rule 30 (condition -> IDENTIFIER LESS_EQ NUMBER .)
+    SEMICOLON       reduce using rule 30 (condition -> IDENTIFIER LESS_EQ NUMBER .)
+
+
+state 82
+
+    (31) condition -> IDENTIFIER EQUALS value .
+
+    AND             reduce using rule 31 (condition -> IDENTIFIER EQUALS value .)
+    LIMIT           reduce using rule 31 (condition -> IDENTIFIER EQUALS value .)
+    SEMICOLON       reduce using rule 31 (condition -> IDENTIFIER EQUALS value .)
+
+
+state 83
+
+    (33) value -> STRING .
+
+    AND             reduce using rule 33 (value -> STRING .)
+    LIMIT           reduce using rule 33 (value -> STRING .)
+    SEMICOLON       reduce using rule 33 (value -> STRING .)
+
+
+state 84
+
+    (34) value -> NUMBER .
+
+    AND             reduce using rule 34 (value -> NUMBER .)
+    LIMIT           reduce using rule 34 (value -> NUMBER .)
+    SEMICOLON       reduce using rule 34 (value -> NUMBER .)
+
+
+state 85
+
+    (32) condition -> IDENTIFIER NOT_EQUALS value .
+
+    AND             reduce using rule 32 (condition -> IDENTIFIER NOT_EQUALS value .)
+    LIMIT           reduce using rule 32 (condition -> IDENTIFIER NOT_EQUALS value .)
+    SEMICOLON       reduce using rule 32 (condition -> IDENTIFIER NOT_EQUALS value .)
+
+
+state 86
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING . LPAREN IDENTIFIER RPAREN
+
+    LPAREN          shift and go to state 87
+
+
+state 87
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN . IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 88
+
+
+state 88
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER . RPAREN
+
+    RPAREN          shift and go to state 89
+
+
+state 89
+
+    (38) create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN .
+
+    SEMICOLON       reduce using rule 38 (create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN .)
 

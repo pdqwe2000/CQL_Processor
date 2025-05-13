@@ -12,7 +12,7 @@ tokens = (
     'DISCARD', 'RENAME', 'PRINT', 'JOIN', 'USING', 'PROCEDURE', 'DO', 
     'END', 'CALL', 'AND', 'LIMIT', 'AS', 'IDENTIFIER', 'STRING', 'NUMBER',
     'GREATER', 'LESS', 'GREATER_EQ', 'LESS_EQ', 'EQUALS', 'NOT_EQUALS',
-    'COMMA', 'SEMICOLON', 'LPAREN', 'RPAREN'
+    'COMMA', 'SEMICOLON', 'LPAREN', 'RPAREN','STAR'
 )
 
 
@@ -57,6 +57,10 @@ t_ignore = ' \t'
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     t.type = reserved.get(t.value.lower(), 'IDENTIFIER')
+    return t
+
+def t_STAR(t):
+    r'\*'
     return t
 
 def t_STRING(t):
@@ -244,9 +248,9 @@ def p_select_stmt(p):
     print()
 
 def p_select_fields(p):
-    '''select_fields : '*'
+    '''select_fields : STAR
                     | field_list'''
-    if p[1] == '*':
+    if isinstance(p[1], str) and p[1] == '*':
         p[0] = ['*']
     else:
         p[0] = p[1]
