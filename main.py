@@ -10,10 +10,11 @@ from collections import defaultdict
 tokens = (
     'SELECT', 'FROM', 'WHERE', 'CREATE', 'TABLE', 'IMPORT', 'EXPORT', 
     'DISCARD', 'RENAME', 'PRINT', 'JOIN', 'USING', 'PROCEDURE', 'DO', 
-    'END', 'CALL', 'AND', 'LIMIT', 'IDENTIFIER', 'STRING', 'NUMBER',
+    'END', 'CALL', 'AND', 'LIMIT', 'AS', 'IDENTIFIER', 'STRING', 'NUMBER',
     'GREATER', 'LESS', 'GREATER_EQ', 'LESS_EQ', 'EQUALS', 'NOT_EQUALS',
     'COMMA', 'SEMICOLON', 'LPAREN', 'RPAREN'
 )
+
 
 # Palavras reservadas
 reserved = {
@@ -34,7 +35,8 @@ reserved = {
     'end': 'END',
     'call': 'CALL',
     'and': 'AND',
-    'limit': 'LIMIT'
+    'limit': 'LIMIT',
+    'as': 'AS'
 }
 
 # Operadores

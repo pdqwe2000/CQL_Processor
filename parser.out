@@ -1,0 +1,108 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> statement SEMICOLON
+Rule 2     program -> program statement SEMICOLON
+Rule 3     statement -> import_stmt
+Rule 4     statement -> export_stmt
+Rule 5     statement -> discard_stmt
+Rule 6     statement -> rename_stmt
+Rule 7     statement -> print_stmt
+Rule 8     statement -> select_stmt
+Rule 9     statement -> create_select_stmt
+Rule 10    statement -> create_join_stmt
+Rule 11    statement -> procedure_decl
+Rule 12    statement -> procedure_call
+Rule 13    import_stmt -> IMPORT TABLE IDENTIFIER FROM STRING
+Rule 14    export_stmt -> EXPORT TABLE IDENTIFIER AS STRING
+Rule 15    discard_stmt -> DISCARD TABLE IDENTIFIER
+Rule 16    rename_stmt -> RENAME TABLE IDENTIFIER TO IDENTIFIER
+Rule 17    print_stmt -> PRINT TABLE IDENTIFIER
+Rule 18    select_stmt -> SELECT select_fields FROM IDENTIFIER where_clause limit_clause
+Rule 19    select_fields -> *
+Rule 20    select_fields -> field_list
+Rule 21    field_list -> IDENTIFIER
+Rule 22    field_list -> field_list COMMA IDENTIFIER
+Rule 23    where_clause -> WHERE condition_list
+Rule 24    where_clause -> empty
+Rule 25    condition_list -> condition
+Rule 26    condition_list -> condition_list AND condition
+Rule 27    condition -> IDENTIFIER GREATER NUMBER
+Rule 28    condition -> IDENTIFIER LESS NUMBER
+Rule 29    condition -> IDENTIFIER GREATER_EQ NUMBER
+Rule 30    condition -> IDENTIFIER LESS_EQ NUMBER
+Rule 31    condition -> IDENTIFIER EQUALS value
+Rule 32    condition -> IDENTIFIER NOT_EQUALS value
+Rule 33    value -> STRING
+Rule 34    value -> NUMBER
+Rule 35    limit_clause -> LIMIT NUMBER
+Rule 36    limit_clause -> empty
+Rule 37    create_select_stmt -> CREATE TABLE IDENTIFIER select_stmt
+Rule 38    create_join_stmt -> CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN
+Rule 39    procedure_decl -> PROCEDURE IDENTIFIER DO program END
+Rule 40    procedure_call -> CALL IDENTIFIER
+Rule 41    empty -> <empty>
+
+Terminals, with rules where they appear
+
+*                    : 19
+AND                  : 26
+AS                   : 14
+CALL                 : 40
+COMMA                : 22
+CREATE               : 37 38
+DISCARD              : 15
+DO                   : 39
+END                  : 39
+EQUALS               : 31
+EXPORT               : 14
+FROM                 : 13 18 38
+GREATER              : 27
+GREATER_EQ           : 29
+IDENTIFIER           : 13 14 15 16 16 17 18 21 22 27 28 29 30 31 32 37 38 38 38 38 39 40
+IMPORT               : 13
+JOIN                 : 38
+LESS                 : 28
+LESS_EQ              : 30
+LIMIT                : 35
+LPAREN               : 38
+NOT_EQUALS           : 32
+NUMBER               : 27 28 29 30 34 35
+PRINT                : 17
+PROCEDURE            : 39
+RENAME               : 16
+RPAREN               : 38
+SELECT               : 18
+SEMICOLON            : 1 2
+STRING               : 13 14 33
+TABLE                : 13 14 15 16 17 37 38
+USING                : 38
+WHERE                : 23
+error                : 
+
+Nonterminals, with rules where they appear
+
+TO                   : 16
+condition            : 25 26
+condition_list       : 23 26
+create_join_stmt     : 10
+create_select_stmt   : 9
+discard_stmt         : 5
+empty                : 24 36
+export_stmt          : 4
+field_list           : 20 22
+import_stmt          : 3
+limit_clause         : 18
+print_stmt           : 7
+procedure_call       : 12
+procedure_decl       : 11
+program              : 2 39 0
+rename_stmt          : 6
+select_fields        : 18
+select_stmt          : 8 37
+statement            : 1 2
+value                : 31 32
+where_clause         : 18
+
