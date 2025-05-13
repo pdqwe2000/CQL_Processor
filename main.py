@@ -4,7 +4,7 @@ import csv
 from collections import defaultdict
 
 # ==============================================
-# ANALISADOR LÉXICO
+# Lexic Analizer
 # ==============================================
 
 tokens = (
@@ -16,7 +16,7 @@ tokens = (
 )
 
 
-# Palavras reservadas
+# Reserved words
 reserved = {
     'select': 'SELECT',
     'from': 'FROM',
@@ -39,7 +39,7 @@ reserved = {
     'as': 'AS'
 }
 
-# Operadores
+# Operators
 t_GREATER = r'>'
 t_LESS = r'<'
 t_GREATER_EQ = r'>='
@@ -51,7 +51,7 @@ t_SEMICOLON = r';'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 
-# Ignorar espaços em branco e tabs
+# Ignores spaces and tabs
 t_ignore = ' \t'
 
 def t_IDENTIFIER(t):
@@ -65,7 +65,7 @@ def t_STAR(t):
 
 def t_STRING(t):
     r'\"([^\\\n]|(\\.))*?\"|\'([^\\\n]|(\\.))*?\''
-    t.value = t.value[1:-1]  # Remove as aspas
+    t.value = t.value[1:-1]  # Remove ""
     return t
 
 def t_NUMBER(t):
@@ -81,14 +81,14 @@ def t_error(t):
     print(f"Carácter ilegal '{t.value[0]}'")
     t.lexer.skip(1)
 
-# Construir o lexer
+# Lexer Constructor
 lexer = lex.lex()
 
 # ==============================================
-# ANALISADOR SINTÁTICO
+# SINTATIC Analizer
 # ==============================================
 
-# Estruturas de dados para armazenamento
+# Data Structures For Memory
 tables = {}
 procedures = {}
 
@@ -122,7 +122,7 @@ def p_import_stmt(p):
             headers = next(reader)
             data = [row for row in reader if not row[0].startswith('#')]
             
-            # Processar campos entre aspas
+            # Processing text in ""
             processed_data = []
             for row in data:
                 processed_row = []
@@ -212,7 +212,7 @@ def p_select_stmt(p):
     headers = table['headers']
     data = table['data']
     
-    # Obter índices dos campos selecionados
+    # Index of the selected fields
     if fields == ['*']:
         selected_indices = list(range(len(headers)))
     else:
@@ -224,7 +224,7 @@ def p_select_stmt(p):
                 print(f"Erro: Campo '{field}' não encontrado")
                 return
     
-    # Filtrar linhas baseado nas condições
+    # Filter lines based on conditions
     filtered_data = []
     if conditions:
         for row in data:
@@ -233,11 +233,11 @@ def p_select_stmt(p):
     else:
         filtered_data = data
     
-    # Aplicar limite
+    # Add Limit
     if limit is not None and limit < len(filtered_data):
         filtered_data = filtered_data[:limit]
     
-    # Mostrar resultados
+    # Show Results
     selected_headers = [headers[i] for i in selected_indices]
     print("\n" + " | ".join(selected_headers))
     print("-" * (sum(len(h) for h in selected_headers) + 3 * (len(selected_headers) - 1)))
@@ -338,11 +338,11 @@ def p_error(p):
     else:
         print("Erro de sintaxe no fim do comando")
 
-# Construir o parser
+# Construction of parser
 parser = yacc.yacc()
 
 # ==============================================
-# FUNÇÕES AUXILIARES
+# Auxiliary Functions
 # ==============================================
 
 def evaluate_conditions(row, headers, conditions):
@@ -357,7 +357,7 @@ def evaluate_conditions(row, headers, conditions):
         idx = headers.index(field)
         cell_value = row[idx]
         
-        # Tentar converter para número se possível
+        # Try convert to number
         try:
             cell_num = float(cell_value)
             if isinstance(value, str):
@@ -370,7 +370,7 @@ def evaluate_conditions(row, headers, conditions):
         except ValueError:
             pass
         
-        # Comparações
+        # Comparasion
         if op == '=':
             if str(cell_value) != str(value):
                 return False
@@ -393,7 +393,7 @@ def evaluate_conditions(row, headers, conditions):
     return True
 
 # ==============================================
-# INTERFACE DO USUÁRIO
+# UI
 # ==============================================
 
 def main():
@@ -406,7 +406,7 @@ def main():
             if text.lower() == 'sair':
                 break
             
-            # Processar múltiplos comandos separados por ;
+            # Process multiple codes separated by ;
             commands = [cmd.strip() for cmd in text.split(';') if cmd.strip()]
             for cmd in commands:
                 if cmd:
