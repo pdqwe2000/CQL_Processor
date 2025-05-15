@@ -1,11 +1,12 @@
 import ply.lex as lex
 
+# Lista de tokens DEVE ser definida antes das regras léxicas
 tokens = (
-    'SELECT', 'FROM', 'WHERE', 'CREATE', 'TABLE', 'IMPORT', 'EXPORT', 
-    'DISCARD', 'RENAME', 'PRINT', 'JOIN', 'USING', 'PROCEDURE', 'DO', 
-    'END', 'CALL', 'AND', 'LIMIT', 'AS', 'IDENTIFIER', 'STRING', 'NUMBER',
-    'GREATER', 'LESS', 'GREATER_EQ', 'LESS_EQ', 'EQUALS', 'NOT_EQUALS',
-    'COMMA', 'SEMICOLON', 'LPAREN', 'RPAREN','STAR'
+    'SELECT', 'FROM', 'WHERE', 'CREATE', 'TABLE', 'IMPORT', 'EXPORT',
+    'DISCARD', 'RENAME', 'PRINT', 'JOIN', 'USING', 'PROCEDURE', 'DO',
+    'END', 'CALL', 'AND', 'LIMIT', 'AS', 'TO', 'IDENTIFIER', 'STRING', 
+    'NUMBER', 'GREATER', 'LESS', 'GREATER_EQ', 'LESS_EQ', 'EQUALS',
+    'NOT_EQUALS', 'COMMA', 'SEMICOLON', 'LPAREN', 'RPAREN', 'STAR'
 )
 
 

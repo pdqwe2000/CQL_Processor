@@ -1,0 +1,3 @@
+IMPORT TABLE estacoes FROM "estacoes.csv";
+SELECT * FROM estacoes WHERE Local = "Bouro";
+EXPORT TABLE estacoes AS "backup_estacoes.csv";

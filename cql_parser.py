@@ -1,6 +1,6 @@
 import ply.yacc as yacc
-from cql_lexer import tokens
 from cql_ast import *
+from cql_lexer import tokens
 from cql_database import tables
 import ply.yacc as yacc
 
@@ -16,6 +16,12 @@ def p_program(p):
     '''program : statement SEMICOLON
                | program statement SEMICOLON'''
     pass
+
+def p_error(p):
+    if p:
+        print(f"Erro de sintaxe em '{p.value}'")
+    else:
+        print("Erro de sintaxe no fim do comando")
 
 def p_statement(p):
     '''statement : import_stmt

@@ -1,6 +1,5 @@
 tables = {}
 
-
 # IMPORT TABLE
 def p_import_stmt(p):
     'import_stmt : IMPORT TABLE IDENTIFIER FROM STRING'
