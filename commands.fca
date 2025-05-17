@@ -1,3 +1,55 @@
-IMPORT TABLE estacoes FROM "estacoes.csv";
-SELECT * FROM estacoes WHERE Local = "Bouro";
-EXPORT TABLE estacoes AS "backup_estacoes.csv";
+-- Importar as tabelas
+import table observacoes from "observacoes.csv";
+import table estacoes from "estacoes.csv";
+
+-- Ver as tabelas
+print table observacoes;
+print table estacoes;
+
+-- SELECT com todos os campos
+select * from observacoes;
+
+-- SELECT com campos específicos
+select Id, Temperatura, Humidade from observacoes;
+
+-- SELECT com filtro simples
+select Id, Temperatura from observacoes where Temperatura > 20;
+
+-- SELECT com múltiplas condições
+select Id, Temperatura, Radiacao from observacoes where Temperatura > 15 and Radiacao > 100;
+
+-- SELECT com LIMIT
+select Id, Temperatura from observacoes where Temperatura > 10 limit 2;
+
+-- Testar exportação das tabelas
+export table observacoes as "saida_observacoes.csv";
+export table estacoes as "saida_estacoes.csv";
+
+-- Renomear tabela e verificar
+rename table observacoes observacoes_antigas;
+print table observacoes_antigas;
+
+-- Descartar tabela renomeada
+discard table observacoes_antigas;
+
+-- Tentar usar CREATE TABLE FROM SELECT (ainda não implementado)
+create table temperaturas_altas select Id, Temperatura from observacoes where Temperatura > 20;
+
+-- Tentar usar CREATE TABLE FROM JOIN (ainda não implementado)
+create table observacoes_localizacao from observacoes join estacoes using (Id);
+
+-- Criar procedimento com várias ações
+procedure ciclo_completo do
+    import table observacoes from "observacoes.csv";
+    import table estacoes from "estacoes.csv";
+    print table observacoes;
+    print table estacoes;
+end;
+
+-- Chamar o procedimento
+call ciclo_completo;
+
+{- 
+   Isto é um comentário de múltiplas linhas
+   Pode ocupar mais de uma linha!
+-}

@@ -86,6 +86,14 @@ def t_error(t):
     print(f"Carácter ilegal '{t.value[0]}'")
     t.lexer.skip(1)
 
+def t_COMMENT_SINGLELINE(t):
+    r'\-\-.*'
+    pass  # Ignora completamente
+
+def t_COMMENT_MULTILINE(t):
+    r'\{\-[\s\S]*?\-\}'
+    pass  # Ignora completamente
+
 # Lexer Constructor
 lexer = lex.lex()
 
