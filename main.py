@@ -4,9 +4,9 @@ import ply.yacc as yacc
 import csv
 import sys
 import os
-import re
+
 import traceback
-import pandas as pd
+
 
 
 from collections import defaultdict
