@@ -1,3 +1,4 @@
+from unittest import result
 import ply.lex as lex
 import ply.yacc as yacc
 import csv
@@ -5,11 +6,13 @@ import sys
 import os
 import re
 import traceback
+import pandas as pd
+
 
 from collections import defaultdict
 
 # ==============================================
-# Lexic Analizer
+# Lexic
 # ==============================================
 
 tokens = (
@@ -82,23 +85,23 @@ def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
+def t_COMMENT_SINGLELINE(t):
+    r'\-\-.*'
+    pass  
+
+def t_COMMENT_MULTILINE(t):
+    r'\{\-[\s\S]*?\-\}'
+    pass  
+
 def t_error(t):
     print(f"Carácter ilegal '{t.value[0]}'")
     t.lexer.skip(1)
 
-def t_COMMENT_SINGLELINE(t):
-    r'\-\-.*'
-    pass  # Ignora completamente
-
-def t_COMMENT_MULTILINE(t):
-    r'\{\-[\s\S]*?\-\}'
-    pass  # Ignora completamente
-
-# Lexer Constructor
+# Constructor
 lexer = lex.lex()
 
 # ==============================================
-# SINTATIC Analizer
+# SINTATIC
 # ==============================================
 
 # Data Structures For Memory
@@ -228,56 +231,58 @@ def p_print_stmt(p):
         print(" | ".join(str(x) for x in row))
     print()
 
-# SELECT
 def p_select_stmt(p):
     '''select_stmt : SELECT select_fields FROM IDENTIFIER where_clause limit_clause'''
     fields = p[2]
     table_name = p[4]
     conditions = p[5]
     limit = p[6]
-    
+
     if table_name not in tables:
         print(f"Erro: Tabela '{table_name}' não encontrada")
         return
-    
+
     table = tables[table_name]
     headers = table['headers']
     data = table['data']
-    
-    # Index of the selected fields
+
+    # Verifica se os campos existem
     if fields == ['*']:
         selected_indices = list(range(len(headers)))
+        selected_headers = headers
     else:
         selected_indices = []
+        selected_headers = []
         for field in fields:
-            if field in headers:
-                selected_indices.append(headers.index(field))
-            else:
-                print(f"Erro: Campo '{field}' não encontrado")
+            if field not in headers:
+                print(f"Erro: Campo '{field}' não encontrado na tabela '{table_name}'")
                 return
-    
-    # Filter lines based on conditions
+            idx = headers.index(field)
+            selected_indices.append(idx)
+            selected_headers.append(field)
+
+    # Aplica cláusula WHERE
     filtered_data = []
-    if conditions:
-        for row in data:
-            if evaluate_conditions(row, headers, conditions):
-                filtered_data.append(row)
-    else:
-        filtered_data = data
-    
-    # Add Limit
-    if limit is not None and limit < len(filtered_data):
+    for row in data:
+        if not conditions or evaluate_conditions(row, headers, conditions):
+            filtered_data.append([row[i] for i in selected_indices])
+
+    # Aplica cláusula LIMIT
+    if limit is not None:
         filtered_data = filtered_data[:limit]
-    
-    # Show Results
-    selected_headers = [headers[i] for i in selected_indices]
+
+    # Imprime o resultado
     print("\n" + " | ".join(selected_headers))
     print("-" * (sum(len(h) for h in selected_headers) + 3 * (len(selected_headers) - 1)))
-    
     for row in filtered_data:
-        selected_row = [str(row[i]) for i in selected_indices]
-        print(" | ".join(selected_row))
+        print(" | ".join(str(cell) for cell in row))
     print()
+    # Retorna resultado
+    p[0] = {
+        'headers': selected_headers,
+        'data': filtered_data
+    }
+
 
 def p_select_fields(p):
     '''select_fields : STAR
@@ -336,14 +341,86 @@ def p_limit_clause(p):
 # CREATE TABLE FROM SELECT
 def p_create_select_stmt(p):
     'create_select_stmt : CREATE TABLE IDENTIFIER select_stmt'
-    # Implementação simplificada - na prática precisaria capturar o resultado do SELECT
-    print("CREATE TABLE FROM SELECT ainda não implementado")
+    table_name = p[3]
+    select_result = p[4]  # Resultado da consulta SELECT
+    
+    if not isinstance(select_result, dict) or 'headers' not in select_result or 'data' not in select_result:
+        print("Erro: Resultado da consulta SELECT inválido")
+        return
+    
+    if table_name in tables:
+        print(f"Aviso: Substituindo tabela existente '{table_name}'")
+    
+    tables[table_name] = {
+        'headers': select_result['headers'],
+        'data': select_result['data']
+    }
+    print(f"Tabela '{table_name}' criada com sucesso com {len(select_result['data'])} registros")
 
-# CREATE TABLE FROM JOIN
 def p_create_join_stmt(p):
     'create_join_stmt : CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN'
-    # Implementação simplificada
-    print("CREATE TABLE FROM JOIN ainda não implementado")
+    new_table = p[3]       # Nome da nova tabela
+    left_table = p[5]      # Primeira tabela a unir
+    right_table = p[7]     # Segunda tabela a unir
+    join_column = p[10]     # Coluna para o JOIN
+    
+    # Verificar se as tabelas existem
+    if left_table not in tables:
+        print(f"Erro: Tabela '{left_table}' não encontrada")
+        return
+        
+    if right_table not in tables:
+        print(f"Erro: Tabela '{right_table}' não encontrada")
+        return
+    
+    left_data = tables[left_table]
+    right_data = tables[right_table]
+    
+    # Verificar se a coluna de junção existe em ambas as tabelas
+    if join_column not in left_data['headers']:
+        print(f"Erro: Coluna '{join_column}' não encontrada em '{left_table}'")
+        return
+        
+    if join_column not in right_data['headers']:
+        print(f"Erro: Coluna '{join_column}' não encontrada em '{right_table}'")
+        return
+    
+    # Obter índices das colunas de junção
+    left_idx = left_data['headers'].index(join_column)
+    right_idx = right_data['headers'].index(join_column)
+    
+    # Criar dicionário para lookup da tabela direita
+    right_lookup = {}
+    for row in right_data['data']:
+        key = row[right_idx]
+        if key not in right_lookup:
+            right_lookup[key] = []
+        right_lookup[key].append(row)
+    
+    # Realizar o JOIN
+    joined_data = []
+    for left_row in left_data['data']:
+        join_key = left_row[left_idx]
+        if join_key in right_lookup:
+            for right_row in right_lookup[join_key]:
+                # Combinar as linhas (excluindo a coluna de junção duplicada)
+                combined_row = left_row + right_row[:right_idx] + right_row[right_idx+1:]
+                joined_data.append(combined_row)
+    
+    # Combinar os cabeçalhos (excluindo a coluna de junção duplicada)
+    combined_headers = left_data['headers'] + [
+        h for h in right_data['headers'] if h != join_column
+    ]
+    
+    # Armazenar a nova tabela
+    tables[new_table] = {
+        'headers': combined_headers,
+        'data': joined_data
+    }
+    
+    print(f"Tabela '{new_table}' criada com sucesso a partir do JOIN entre '{left_table}' e '{right_table}'")
+    print(f"Total de registros: {len(joined_data)}")
+    print(f"Colunas: {', '.join(combined_headers)}")
 
 # PROCEDURE
 def p_procedure_decl(p):
