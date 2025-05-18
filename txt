@@ -1,3 +1,24 @@
+IMPORT TABLE estacoes FROM "estacoes.csv";
+EXPORT TABLE estacoes AS "est.csv";
+DISCARD TABLE estacoes;
+RENAME TABLE estacoes est;
+PRINT TABLE est;
+SELECT * FROM observacoes;
+SELECT DataHoraObservacao,Id FROM observacoes;
+SELECT * FROM observacoes WHERE Temperatura > 22;
+CREATE TABLE mais quentes SELECT * FROM observacoes WHERE Temperatura > 22 ;
+CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
+
+PROCEDURE atualizar_observacoes DO
+    CREATE TABLE mais_quentes SELECT * FROM observacoes WHERE Temperatura > 22 ;
+    CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
+END
+
+
+IMPORT TABLE observacoes FROM "observacoes.csv";
+IMPORT TABLE estacoes FROM "estacoes.csv";
+CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
+PRINT TABLE completo;
 
 
 {- ================================= -}
