@@ -1,0 +1,9 @@
+IMPORT TABLE estacoes FROM "estacoes.csv";
+IMPORT TABLE observacoes FROM "observacoes.csv";
+
+PROCEDURE analise_meteorologica DO
+CREATE TABLE mais_quentes SELECT * FROM observacoes WHERE Temperatura > 22;
+END;
+
+-- Execute the procedure
+CALL analise_meteorologica;

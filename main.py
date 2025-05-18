@@ -6,8 +6,6 @@ import os
 import re
 import traceback
 
-
-
 from collections import defaultdict
 
 # ==============================================
@@ -108,22 +106,35 @@ tables = {}
 procedures = {}
 
 def p_program(p):
-    '''program : statement SEMICOLON
-               | program statement SEMICOLON'''
-    pass
+    '''program : statement
+               | program statement'''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[2]]
+
+
+def p_statements(p):
+    '''statements : statement SEMICOLON
+                 | statements statement SEMICOLON'''
+    if len(p) == 3:  # statement SEMICOLON
+        p[0] = [p[1]] if p[1] is not None else []
+    else:  # statements statement SEMICOLON
+        p[0] = p[1] + ([p[2]] if p[2] is not None else [])
 
 def p_statement(p):
-    '''statement : import_stmt
-                | export_stmt
-                | discard_stmt
-                | rename_stmt
-                | print_stmt
-                | select_stmt
-                | create_select_stmt
-                | create_join_stmt
-                | procedure_decl
-                | procedure_call'''
-    pass
+    '''statement : import_stmt SEMICOLON
+                | export_stmt SEMICOLON
+                | discard_stmt SEMICOLON
+                | rename_stmt SEMICOLON
+                | print_stmt SEMICOLON
+                | select_stmt SEMICOLON
+                | create_select_stmt SEMICOLON
+                | create_join_stmt SEMICOLON
+                | procedure_decl SEMICOLON
+                | procedure_call SEMICOLON'''
+    p[0] = p[1]
+
 
 # IMPORT TABLE
 def p_import_stmt(p):
@@ -166,6 +177,8 @@ def p_import_stmt(p):
     
     except Exception as e:
         print(f"Erro ao importar tabela de '{filename}': {e}")
+    
+    p[0] = {'type': 'import_stmt', 'table': table_name, 'file': filename}
 
 # EXPORT TABLE
 def p_export_stmt(p):
@@ -190,6 +203,8 @@ def p_export_stmt(p):
     
     except Exception as e:
         print(f"Erro ao exportar tabela para '{filename}': {e}")
+        
+    p[0] = {'type': 'export_stmt', 'table': table_name, 'file': filename}
 
 # DISCARD TABLE
 def p_discard_stmt(p):
@@ -200,6 +215,8 @@ def p_discard_stmt(p):
         print(f"Tabela '{table_name}' descartada")
     else:
         print(f"Erro: Tabela '{table_name}' não encontrada")
+        
+    p[0] = {'type': 'discard_stmt', 'table': table_name}
 
 # RENAME TABLE
 def p_rename_stmt(p):
@@ -212,6 +229,8 @@ def p_rename_stmt(p):
         print(f"Tabela '{old_name}' renomeada para '{new_name}'")
     else:
         print(f"Erro: Tabela '{old_name}' não encontrada")
+        
+    p[0] = {'type': 'rename_stmt', 'old_table': old_name, 'new_table': new_name}
 
 # PRINT TABLE
 def p_print_stmt(p):
@@ -229,6 +248,8 @@ def p_print_stmt(p):
     for row in table['data']:
         print(" | ".join(str(x) for x in row))
     print()
+    
+    p[0] = {'type': 'print_stmt', 'table': table_name}
 
 def p_select_stmt(p):
     '''select_stmt : SELECT select_fields FROM IDENTIFIER where_clause limit_clause'''
@@ -278,8 +299,15 @@ def p_select_stmt(p):
     print()
     # Retorna resultado
     p[0] = {
-        'headers': selected_headers,
-        'data': filtered_data
+        'type': 'select_stmt',
+        'fields': fields,
+        'table': table_name,
+        'conditions': conditions,
+        'limit': limit,
+        'result': {
+            'headers': selected_headers,
+            'data': filtered_data
+        }
     }
 
 
@@ -341,7 +369,7 @@ def p_limit_clause(p):
 def p_create_select_stmt(p):
     'create_select_stmt : CREATE TABLE IDENTIFIER select_stmt'
     table_name = p[3]
-    select_result = p[4]  # Resultado da consulta SELECT
+    select_result = p[4]['result']  # Resultado da consulta SELECT
     
     if not isinstance(select_result, dict) or 'headers' not in select_result or 'data' not in select_result:
         print("Erro: Resultado da consulta SELECT inválido")
@@ -355,6 +383,8 @@ def p_create_select_stmt(p):
         'data': select_result['data']
     }
     print(f"Tabela '{table_name}' criada com sucesso com {len(select_result['data'])} registros")
+    
+    p[0] = {'type': 'create_select_stmt', 'table': table_name, 'select': p[4]}
 
 def p_create_join_stmt(p):
     'create_join_stmt : CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN'
@@ -420,21 +450,98 @@ def p_create_join_stmt(p):
     print(f"Tabela '{new_table}' criada com sucesso a partir do JOIN entre '{left_table}' e '{right_table}'")
     print(f"Total de registros: {len(joined_data)}")
     print(f"Colunas: {', '.join(combined_headers)}")
+    
+    p[0] = {
+        'type': 'create_join_stmt', 
+        'new_table': new_table, 
+        'left_table': left_table, 
+        'right_table': right_table, 
+        'join_column': join_column
+    }
 
 # PROCEDURE
 def p_procedure_decl(p):
-    'procedure_decl : PROCEDURE IDENTIFIER DO program END'
-    procedures[p[2]] = p[4]
-    print(f"Procedimento '{p[2]}' definido")
+    '''procedure_decl : PROCEDURE IDENTIFIER DO statements END'''
+    procedure_name = p[2]
+    statements_text = []
+    mydict={procedure_name:p[4]}
+    print(mydict)
+    # Extract the text of each statement from the statements list
+    for stmt in p[4]:
+        # Find the statement text in the source code if possible
+        # Otherwise just save the statement type for execution
+        if isinstance(stmt, dict) and 'type' in stmt:
+            statements_text.append(stmt)
+    
+    # Store procedure as a list of commands to execute
+    procedures[procedure_name] = statements_text
+    
+    print(f"Procedimento '{procedure_name}' definido com {len(statements_text)} instruções")
+    
+    p[0] = {'type': 'procedure_decl', 'name': procedure_name}
 
 # CALL PROCEDURE
 def p_procedure_call(p):
     'procedure_call : CALL IDENTIFIER'
-    if p[2] in procedures:
-        # Implementação simplificada - na prática precisaria executar as instruções
-        print(f"Executando procedimento '{p[2]}'")
+    procedure_name = p[2]
+    
+    if procedure_name in procedures:
+        print(f"\nExecutando procedimento '{procedure_name}':")
+        procedure_statements = procedures[procedure_name]
+        
+        for i, stmt in enumerate(procedure_statements):
+            try:
+                if isinstance(stmt, dict) and 'type' in stmt:
+                    # For clarity in debug output
+                    stmt_type = stmt['type']
+                    print(f">> Executando instrução {i+1}: {stmt_type}")
+                    
+                    # Execute different statement types
+                    if stmt_type == 'create_select_stmt':
+                        # For CREATE TABLE ... SELECT
+                        table_name = stmt['table']
+                        select_result = stmt['select']['result']
+                        tables[table_name] = {
+                            'headers': select_result['headers'],
+                            'data': select_result['data']
+                        }
+                        print(f"Tabela '{table_name}' criada com sucesso com {len(select_result['data'])} registros")
+                    
+                    elif stmt_type == 'create_join_stmt':
+                        # For CREATE TABLE ... FROM ... JOIN
+                        execute_join(stmt['new_table'], stmt['left_table'], stmt['right_table'], stmt['join_column'])
+                    
+                    # Add handlers for other statement types as needed
+                    elif stmt_type == 'select_stmt':
+                        # Executar SELECT (já imprime o resultado)
+                        pass
+                    
+                    elif stmt_type == 'print_stmt':
+                        # Imprimir tabela
+                        table_name = stmt['table']
+                        if table_name in tables:
+                            table = tables[table_name]
+                            print("\n" + " | ".join(table['headers']))
+                            print("-" * (sum(len(h) for h in table['headers']) + 3 * (len(table['headers']) - 1)))
+                            for row in table['data']:
+                                print(" | ".join(str(x) for x in row))
+                            print()
+                        else:
+                            print(f"Erro: Tabela '{table_name}' não encontrada")
+                            
+                    # Add other statement types as needed
+                    
+                else:
+                    print(f">> Aviso: Instrução {i+1} não pode ser executada (formato inválido)")
+            except Exception as e:
+                print(f"Erro na execução da instrução {i+1}: {str(e)}")
+                traceback.print_exc()
+        
+        print(f"Procedimento '{procedure_name}' concluído\n")
     else:
-        print(f"Erro: Procedimento '{p[2]}' não encontrado")
+        print(f"Erro: Procedimento '{procedure_name}' não encontrado")
+    
+    p[0] = {'type': 'procedure_call', 'name': procedure_name}
 
 def p_empty(p):
     'empty :'
@@ -442,16 +549,76 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        print(f"Erro de sintaxe em '{p.value}'")
+        print(f"Erro de sintaxe na linha {p.lineno}, token '{p.value}' (tipo: {p.type})")
+        # Recuperação de erro: descarta tokens até encontrar um ponto-e-vírgula
+        parser.errok()
+        parser.token()  # Descarta o token problemático
     else:
-        print("Erro de sintaxe no fim do comando")
-
-# Construction of parser
-parser = yacc.yacc()
+        print("Erro de sintaxe: comando incompleto ou inválido")
 
 # ==============================================
 # Auxiliary Functions
 # ==============================================
+
+def execute_join(new_table, left_table, right_table, join_column):
+    """Helper function to execute a JOIN operation"""
+    # Verificar se as tabelas existem
+    if left_table not in tables:
+        print(f"Erro: Tabela '{left_table}' não encontrada")
+        return
+        
+    if right_table not in tables:
+        print(f"Erro: Tabela '{right_table}' não encontrada")
+        return
+    
+    left_data = tables[left_table]
+    right_data = tables[right_table]
+    
+    # Verificar se a coluna de junção existe em ambas as tabelas
+    if join_column not in left_data['headers']:
+        print(f"Erro: Coluna '{join_column}' não encontrada em '{left_table}'")
+        return
+        
+    if join_column not in right_data['headers']:
+        print(f"Erro: Coluna '{join_column}' não encontrada em '{right_table}'")
+        return
+    
+    # Obter índices das colunas de junção
+    left_idx = left_data['headers'].index(join_column)
+    right_idx = right_data['headers'].index(join_column)
+    
+    # Criar dicionário para lookup da tabela direita
+    right_lookup = {}
+    for row in right_data['data']:
+        key = row[right_idx]
+        if key not in right_lookup:
+            right_lookup[key] = []
+        right_lookup[key].append(row)
+    
+    # Realizar o JOIN
+    joined_data = []
+    for left_row in left_data['data']:
+        join_key = left_row[left_idx]
+        if join_key in right_lookup:
+            for right_row in right_lookup[join_key]:
+                # Combinar as linhas (excluindo a coluna de junção duplicada)
+                combined_row = left_row + right_row[:right_idx] + right_row[right_idx+1:]
+                joined_data.append(combined_row)
+    
+    # Combinar os cabeçalhos (excluindo a coluna de junção duplicada)
+    combined_headers = left_data['headers'] + [
+        h for h in right_data['headers'] if h != join_column
+    ]
+    
+    # Armazenar a nova tabela
+    tables[new_table] = {
+        'headers': combined_headers,
+        'data': joined_data
+    }
+    
+    print(f"Tabela '{new_table}' criada com sucesso a partir do JOIN entre '{left_table}' e '{right_table}'")
+    print(f"Total de registros: {len(joined_data)}")
+    print(f"Colunas: {', '.join(combined_headers)}")
 
 def evaluate_conditions(row, headers, conditions):
     for cond in conditions:
@@ -500,6 +667,9 @@ def evaluate_conditions(row, headers, conditions):
     
     return True
 
+# Construction of parser
+parser = yacc.yacc()
+
 # ==============================================
 # UI
 # ==============================================
@@ -521,6 +691,7 @@ def main():
         try:
             with open(filename, 'r') as f:
                 content = f.read()
+                parser.source_code = content  # Store the source code for procedure extraction
                 commands = [cmd.strip() for cmd in content.split(';') if cmd.strip()]
                 for cmd in commands:
                     parser.parse(cmd + ';')
@@ -528,12 +699,14 @@ def main():
             print("Erro ao ler o ficheiro:")
             traceback.print_exc()
     else:
-        print("Modo interativo. Digite 'sair' para encerrar.")
+        print("Modo interativo. Escreva 'sair' para encerrar o programa.")
+        parser.source_code = ""  # Initialize source code buffer for interactive mode
         while True:
             try:
                 text = input('CQL> ')
                 if text.lower() == 'sair':
                     break
+                parser.source_code += text + "\n"  # Append to source buffer
                 commands = [cmd.strip() for cmd in text.split(';') if cmd.strip()]
                 for cmd in commands:
                     parser.parse(cmd + ';')
@@ -541,6 +714,7 @@ def main():
                 break
             except Exception as e:
                 print(f"Erro: {e}")
+                traceback.print_exc()
 
 
 if __name__ == '__main__':
